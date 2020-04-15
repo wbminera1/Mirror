@@ -823,13 +823,15 @@ namespace Mirror
             ownerWriter.WritePackedUInt64(dirtyComponentsMask);
             observersWriter.WritePackedUInt64(dirtyComponentsMask & syncModeObserversMask);
 
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; i++)
             {
-                // is this component dirty?
-                // -> always serialize if initialState so all components are included in spawn packet
-                // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
-                if (initialState || comp.IsDirty())
+                // is the dirty bit at position 'i' set to 1?
+                ulong dirtyBit = 1UL << i;
+                if ((dirtyComponentsMask & dirtyBit) != 0UL)
                 {
+                    NetworkBehaviour comp = components[i];
+
                     if (LogFilter.Debug) Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
                     // serialize into ownerWriter first

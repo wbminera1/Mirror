@@ -9,9 +9,9 @@ namespace Mirror.Weaver
         /// Generates serialization methods for synclists
         /// </summary>
         /// <param name="td">The synclist class</param>
-        public static void Process(TypeDefinition td)
+        public static void Process(TypeDefinition td, TypeReference baseType)
         {
-            SyncObjectProcessor.GenerateSerialization(td, 0, "SerializeItem", "DeserializeItem");
+            SyncObjectProcessor.GenerateSerialization(td, 0, baseType, "SerializeItem", "DeserializeItem");
         }
     }
 }

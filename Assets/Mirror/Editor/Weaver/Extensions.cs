@@ -40,6 +40,56 @@ namespace Mirror.Weaver
             }
             return false;
         }
+        public static bool GetGenericFromBaseClass(this TypeDefinition td, int genericArgument, TypeReference baseType, out TypeReference itemType)
+        {
+            if (td.GetGenericBaseType(baseType, out GenericInstanceType parent))
+            {
+                TypeReference param = parent.GenericArguments[genericArgument];
+                itemType = Weaver.CurrentAssembly.MainModule.ImportReference(param);
+            }
+            else
+            {
+                itemType = null;
+            }
+
+            return itemType != null;
+        }
+
+        public static bool GetGenericBaseType(this TypeDefinition td, TypeReference baseType, out GenericInstanceType found)
+        {
+            TypeReference parent = td.BaseType;
+            found = null;
+
+            while (parent != null)
+            {
+                string parentName = parent.FullName;
+
+                // strip generic parameters
+                int index = parentName.IndexOf('<');
+                if (index != -1)
+                {
+                    parentName = parentName.Substring(0, index);
+                }
+
+                if (parentName == baseType.FullName)
+                {
+                    found = parent as GenericInstanceType;
+                    break;
+                }
+                try
+                {
+                    parent = parent.Resolve().BaseType;
+                }
+                catch (AssemblyResolutionException)
+                {
+                    // this can happen for plugins.
+                    //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
+                    break;
+                }
+            }
+
+            return found != null;
+        }
 
         public static TypeReference GetEnumUnderlyingType(this TypeDefinition td)
         {

@@ -409,6 +409,12 @@ namespace Mirror.Weaver
             if (!td.IsClass)
                 return false;
 
+            // ignore abstract classes
+            // we dont need to process abstract classes because classes that
+            // inherit from them will be processed instead
+            if (td.IsAbstract)
+                return false;
+
             bool modified = false;
 
             if (td.IsDerivedFrom(SyncListType))

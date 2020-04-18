@@ -42,14 +42,14 @@ namespace Mirror.Weaver
         }
         public static bool GetGenericFromBaseClass(this TypeDefinition td, int genericArgument, TypeReference baseType, out TypeReference itemType)
         {
+            itemType = null;
             if (td.GetGenericBaseType(baseType, out GenericInstanceType parent))
             {
                 TypeReference param = parent.GenericArguments[genericArgument];
-                itemType = Weaver.CurrentAssembly.MainModule.ImportReference(param);
-            }
-            else
-            {
-                itemType = null;
+                if (!param.IsGenericParameter)
+                {
+                    itemType = Weaver.CurrentAssembly.MainModule.ImportReference(param);
+                }
             }
 
             return itemType != null;
